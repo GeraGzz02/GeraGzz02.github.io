@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medición de Variables</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f2e9d7; /* Fondo crema claro */
+            color: #2c2c2c; /* Texto oscuro */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            padding: 40px;
+            background-color: #ffffff; /* Fondo blanco para el contenedor */
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: #5a5a5a; /* Color gris */
+        }
+
+        /* Configuración base para la vista móvil (por defecto vertical) */
+        .variables-container {
+            display: flex;
+            flex-direction: column; /* Vista móvil por defecto (vertical) */
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Espacio entre tarjetas */
+        }
+
+        /* Vista horizontal para pantallas mayores a 768px */
+        @media (min-width: 768px) {
+            .variables-container {
+                flex-direction: row; /* Vista horizontal para pantallas más grandes */
+            }
+        }
+
+        .variable-card {
+            padding: 20px;
+            border-radius: 8px;
+            color: #ffffff;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 200px; /* Ajusta el ancho de las tarjetas */
+            text-align: center;
+            position: relative; /* Para efectos de hover */
+        }
+        #TemperaturaId {
+            background: linear-gradient(135deg, #ff6a6a, #ff9a9a); /* Gradiente cálido */
+        }
+        #AltId {
+            background: linear-gradient(135deg, #4caf50, #81c784); /* Gradiente verde */
+        }
+        #PresionId {
+            background: linear-gradient(135deg, #2196f3, #64b5f6); /* Gradiente azul */
+        }
+        .label {
+            font-size: 1rem;
+            color: #f0f0f0; /* Color claro para las etiquetas */
+            margin-top: 10px;
+        }
+        .variable-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            background-color: #ffffff; /* Igual que el fondo del contenedor */
+            margin-top: 30px;
+            border-radius: 0 0 12px 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sensor Bmp280</h1>
+        
+        <div class="variables-container">
+            <div class="variable-card" id="TemperaturaId">
+                <span>-- °C</span>
+                <span class="label">Temperatura</span>
+            </div>
+            
+            <div class="variable-card" id="AltId">
+                <span>-- m</span>
+                <span class="label">Altitud</span>
+            </div>
+
+            <div class="variable-card" id="PresionId">
+                <span>-- mmHg</span>
+                <span class="label">Presión</span>
+            </div>
+        </div>
+
+        <footer>
+            <div>
+                Creado por Gerardo González Moyeda 1896771 &middot; &copy; 2024
+            </div>
+        </footer>
+    </div>
+
+    <!-- Firebase and jQuery -->
+    <script src="https://www.gstatic.com/firebasejs/6.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.5.0/firebase-database.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDDP042IpeYQoYnRTzrVWJfL8dNDyTAMNQ",
+            authDomain: "esp32iot-7efe3.firebaseapp.com",
+            databaseURL: "https://esp32iot-7efe3-default-rtdb.firebaseio.com",
+            projectId: "esp32iot-7efe3",
+            storageBucket: "esp32iot-7efe3.appspot.com",
+            messagingSenderId: "625023662600",
+            appId: "1:625023662600:web:22505ab754fc68e3d4afbd"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database();
+
+        const dbAltitud = dbRef.ref("ESP32IoTApp/Altitud");
+        const dbPresion = dbRef.ref("ESP32IoTApp/Presion");
+        const dbTemp = dbRef.ref("ESP32IoTApp/Temp");
+
+        function actualizarVariables() {
+            dbTemp.on('value', function(snapshot) {
+                const temperatura = snapshot.val();
+                document.getElementById('TemperaturaId').children[0].innerText = temperatura ? temperatura.toFixed(2) + " °C" : "-- °C";
+            });
+
+            dbAltitud.on('value', function(snapshot) {
+                const altitud = snapshot.val();
+                document.getElementById('AltId').children[0].innerText = altitud ? altitud.toFixed(2) + " m" : "-- m";
+            });
+
+            dbPresion.on('value', function(snapshot) {
+                const presion = snapshot.val();
+                document.getElementById('PresionId').children[0].innerText = presion ? presion.toFixed(2) + " mmHg" : "-- mmHg";
+            });
+        }
+
+        actualizarVariables();
+    </script>
+</body>
+</html>
